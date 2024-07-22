@@ -1,9 +1,5 @@
-import javax.swing.plaf.FontUIResource;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -11,8 +7,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.stream.Collectors;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
@@ -39,35 +33,34 @@ public class Main {
     public static final Random RANDOM = new Random();
 
     public static void main(String[] args) {
-        ExecutorService executorService = Executors.newFixedThreadPool(concurrencyLevel);
-        TaskExecutor taskExecutor = new TaskExecutorImpl(executorService);
-        TaskService taskService = new TaskService(executorService, taskExecutor);
-        List<Task<String>> inputTasks = createTasks();
+        ExecutorService    executorService = Executors.newFixedThreadPool(concurrencyLevel);
+        TaskExecutor       taskExecutor    = new TaskExecutorImpl(executorService);
+        TaskService        taskService     = new TaskService(executorService, taskExecutor);
+        List<Task<String>> inputTasks      = createTasks();
         taskService.submit(inputTasks);
-        System.out.println("Task submitted: "+inputTasks.size());
+        System.out.println("Task submitted: " + inputTasks.size());
 
         List<Future<String>> futures = taskService.getFutures();
-        System.out.println("Future size: "+futures.size());
+        System.out.println("Future size: " + futures.size());
         try {
-        for(Future<String> future : futures){
+            for (Future<String> future : futures) {
                 System.out.println(future.get());
-        }
+            }
         } catch (InterruptedException | ExecutionException e) {
-            System.out.println("Exception occured:"+ e.getMessage() );
-        }
-        finally {
+            System.out.println("Exception occured:" + e.getMessage());
+        } finally {
             executorService.shutdown();
         }
     }
 
     private static List<Task<String>> createTasks() {
-        TaskGroup taskGroup1 = new TaskGroup(UUID.randomUUID());
-        TaskGroup taskGroup2 = new TaskGroup(UUID.randomUUID());
-        TaskGroup taskGroup3 = new TaskGroup(UUID.randomUUID());
-        TaskGroup taskGroup4 = new TaskGroup(UUID.randomUUID());
-        List<TaskGroup> taskGroups = List.of(taskGroup1, taskGroup2, taskGroup3, taskGroup4);
-        List<Task<String>> tasks = new ArrayList<>();
-        for(int i=0; i < 30; i++){
+        TaskGroup          taskGroup1 = new TaskGroup(UUID.randomUUID());
+        TaskGroup          taskGroup2 = new TaskGroup(UUID.randomUUID());
+        TaskGroup          taskGroup3 = new TaskGroup(UUID.randomUUID());
+        TaskGroup          taskGroup4 = new TaskGroup(UUID.randomUUID());
+        List<TaskGroup>    taskGroups = List.of(taskGroup1, taskGroup2, taskGroup3, taskGroup4);
+        List<Task<String>> tasks      = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
             Task<String> sometask = new Task<>(UUID.randomUUID(), selectRandomTaskGroup(taskGroups), selectRandomTaskType(), selectRandomCallable());
             tasks.add(sometask);
             selectRandomTaskGroup(taskGroups);
@@ -76,7 +69,7 @@ public class Main {
     }
 
     private static Callable<String> selectRandomCallable() {
-        return () -> "Callable with UUID: "+UUID.randomUUID();
+        return () -> "Callable with UUID: " + UUID.randomUUID();
     }
 
     private static TaskType selectRandomTaskType() {
@@ -89,7 +82,7 @@ public class Main {
         return taskGroups.get(randomIndex);
     }
 
-    private static int generateRandomInteger(){
+    private static int generateRandomInteger() {
         return Math.abs(RANDOM.nextInt());
     }
 }
